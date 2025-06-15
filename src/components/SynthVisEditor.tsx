@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Square, Volume2, Eye, Code2, Settings, Sync, Palette } from 'lucide-react';
+import { Play, Pause, Square, Volume2, Eye, Code2, Settings, RefreshCw, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
@@ -132,7 +131,7 @@ particles(100)
               SynthVis
             </h1>
             <div className="flex items-center gap-2 text-sm text-gray-400">
-              <Sync className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4" />
               <span>Synchronized Audiovisual Coding</span>
             </div>
           </div>
