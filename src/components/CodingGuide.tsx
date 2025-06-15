@@ -283,11 +283,11 @@ const CodingGuide = () => {
         <h4 className="font-semibold text-sm mb-2 text-purple-700">💡 Pro Tip: Audio-Visual Sync</h4>
         <p className="text-xs text-gray-700 mb-2">
           Use <code className="bg-white px-1 rounded">audio.amp</code>, <code className="bg-white px-1 rounded">audio.freq</code>, 
-          <code className="bg-white px-1 rounded">audio.beat</code>, and <code className="bg-white px-1 rounded">audio.phase</code> 
+          and <code className="bg-white px-1 rounded">audio.beat</code> 
           in your visual code to create reactive animations.
         </p>
         <code className="text-xs font-mono text-purple-700 block">
-          circle().scale(() => audio.amp * 3 + 0.5).color(() => audio.freq/1000, 0.8, 1)
+          circle().scale(() =&gt; audio.amp * 3 + 0.5).color(() =&gt; audio.freq/1000, 0.8, 1)
         </code>
       </div>
     </div>
