@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Square, Volume2, Eye, Code2, Settings, RefreshCw, Palette, BookOpen, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Play, Pause, Square, Volume2, Eye, Code2, BookOpen, X, Zap, Activity, Waves } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-import { Card, CardContent } from '@/components/ui/card';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import WaveformVisualizer from './WaveformVisualizer';
 import ShaderCanvas from './ShaderCanvas';
 import CodeEditor from './CodeEditor';
@@ -12,22 +10,14 @@ import CodingGuide from './CodingGuide';
 import { useAudioVisualSync } from '@/hooks/useAudioVisualSync';
 
 const SynthVisEditor = () => {
-  const { 
-    syncState, 
-    updateAudioParams, 
-    updateVisualParams, 
-    setPlayState, 
-    updateAudioData, 
-    updateTime 
-  } = useAudioVisualSync();
-
+  const { syncState, updateAudioParams, updateVisualParams, setPlayState, updateAudioData, updateTime } = useAudioVisualSync();
   const [showGuide, setShowGuide] = useState(false);
 
-  const [audioCode, setAudioCode] = useState(`// SynthVis Advanced Audio Programming
+  const [audioCode, setAudioCode] = useState(`// SynthVis — Audio Engine
 set_tempo 128
 set_key :Dm
 
-// Main progression with complex synthesis
+// Layered pad with effects chain
 with_synth :saw do
   with_fx :reverb, room: 0.8, damp: 0.6 do
     with_fx :lpf, cutoff: 1200, resonance: 0.7 do
@@ -43,7 +33,7 @@ with_synth :saw do
   end
 end
 
-// Rhythmic bass line with modulation
+// Modulated bass line
 in_thread do
   with_synth :fm do
     modulate :carrier_freq, lfo: :sine, rate: 0.5, depth: 50
@@ -57,9 +47,8 @@ in_thread do
     end
   end
 end`);
-  
-  const [visualCode, setVisualCode] = useState(`// SynthVis Advanced Visual Programming
-// Dynamic background with audio reactivity
+
+  const [visualCode, setVisualCode] = useState(`// SynthVis — Visual Engine
 bg(() => [
   0.1 + audio.amp * 0.2,
   0.05 + audio.beat * 0.1,
@@ -67,16 +56,15 @@ bg(() => [
   0.9
 ])
 
-// Central audio-reactive mandala
+// Audio-reactive mandala
 group("mandala") {
   translate(width/2, height/2)
-  
-  // Outer ring of particles
+
   for(let i = 0; i < 12; i++) {
     push()
     rotate(i * 30 + time * 30)
     translate(80 + audio.amp * 40, 0)
-    
+
     circle()
       .radius(5 + audio.beat * 10)
       .color([
@@ -87,8 +75,7 @@ group("mandala") {
       .glow(intensity: audio.amp * 20)
     pop()
   }
-  
-  // Inner geometric pattern
+
   polygon(sides: 6)
     .radius(50 + audio.amp * 30)
     .stroke(width: 2 + audio.beat * 3)
@@ -97,31 +84,29 @@ group("mandala") {
     .blend("screen")
 }
 
-// Audio spectrum visualization
+// Spectrum bars
 spectrum(bands: 32) {
   position(0, height - 100)
   width(width)
   height(100)
-  
+
   bar_style({
     color: (freq, amp) => [
-      freq/1000,
-      0.8,
-      0.5 + amp * 0.5
+      freq/1000, 0.8, 0.5 + amp * 0.5
     ],
     width: width/32 - 2,
     glow: audio.beat
   })
 }
 
-// Floating reactive shapes
+// Particle system
 particles(count: 50) {
   spawn_rate(audio.beat ? 5 : 1)
   velocity(() => [
     random(-2, 2) * (1 + audio.amp),
     random(-3, -1) * (1 + audio.amp)
   ])
-  
+
   shape("circle")
     .radius(() => random(2, 8) + audio.beat * 5)
     .color(() => [
@@ -134,9 +119,9 @@ particles(count: 50) {
     .trail(length: 15, fade: 0.95)
 }`);
 
-  // Sync audio code changes to visual parameters
+  // Audio-visual sync effects
   useEffect(() => {
-    const tempo = audioCode.match(/set_tempo\s+(\d+)/)?.[1] ? parseInt(audioCode.match(/set_tempo\s+(\d+)/)![1]) : 120;
+    const tempo = parseInt(audioCode.match(/set_tempo\s+(\d+)/)?.[1] || '120');
     const key = audioCode.match(/set_key\s+:([A-G][#b]?[m]?)/)?.[1] || 'C';
     const hasReverb = audioCode.includes('reverb');
     const hasFilter = audioCode.includes('lpf') || audioCode.includes('hpf');
@@ -144,31 +129,20 @@ particles(count: 50) {
     
     updateAudioParams({ tempo, key });
     
-    // Enhanced visual sync based on audio features
     if (hasReverb && hasFilter) {
-      updateVisualParams({ 
-        particleCount: 75,
-        intensity: 0.9,
-        backgroundStyle: 'ethereal'
-      });
+      updateVisualParams({ particleCount: 75, intensity: 0.9, backgroundStyle: 'ethereal' });
     } else if (hasModulation) {
-      updateVisualParams({
-        particleCount: 100,
-        intensity: 0.8
-      });
+      updateVisualParams({ particleCount: 100, intensity: 0.8 });
     }
   }, [audioCode, updateAudioParams, updateVisualParams]);
 
-  // Sync visual code changes to audio parameters  
   useEffect(() => {
-    const particleCount = visualCode.match(/particles\(count:\s*(\d+)\)/)?.[1] ? parseInt(visualCode.match(/particles\(count:\s*(\d+)\)/)![1]) : 50;
+    const particleCount = parseInt(visualCode.match(/particles\(count:\s*(\d+)\)/)?.[1] || '50');
     const hasSpectrum = visualCode.includes('spectrum');
     const hasGlow = visualCode.includes('glow');
     const hasTrail = visualCode.includes('trail');
     
     updateVisualParams({ particleCount });
-    
-    // Influence audio based on visual complexity
     if (hasSpectrum && hasGlow) {
       updateAudioParams({ tempo: Math.min(syncState.audioParams.tempo + 8, 160) });
     }
@@ -180,237 +154,167 @@ particles(count: 50) {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (syncState.isPlaying) {
-      interval = setInterval(() => {
-        updateTime(syncState.currentTime + 0.1);
-      }, 100);
+      interval = setInterval(() => updateTime(syncState.currentTime + 0.1), 100);
     }
     return () => clearInterval(interval);
   }, [syncState.isPlaying, syncState.currentTime, updateTime]);
 
-  const handlePlay = () => {
-    setPlayState(!syncState.isPlaying);
-  };
+  const handlePlay = () => setPlayState(!syncState.isPlaying);
+  const handleStop = () => { setPlayState(false); updateTime(0); };
 
-  const handleStop = () => {
-    setPlayState(false);
-    updateTime(0);
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    updateAudioParams({ volume: value[0] });
-  };
+  const audioFnCount = (audioCode.match(/\b(play|with_synth|with_fx|modulate)\b/g) || []).length;
+  const visualObjCount = (visualCode.match(/\b(circle|rect|polygon|particles|spectrum)\b/g) || []).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative">
-      {/* Audio Engine Component */}
-      <AudioEngine
-        code={audioCode}
-        isPlaying={syncState.isPlaying}
-        tempo={syncState.audioParams.tempo}
-        volume={syncState.audioParams.volume}
-        onAudioData={updateAudioData}
-      />
+    <div className="h-screen flex flex-col bg-sv-surface-0 text-foreground overflow-hidden">
+      <AudioEngine code={audioCode} isPlaying={syncState.isPlaying} tempo={syncState.audioParams.tempo} volume={syncState.audioParams.volume} onAudioData={updateAudioData} />
 
-      {/* Coding Guide Overlay */}
+      {/* Guide Overlay */}
       {showGuide && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-6xl max-h-[90vh]">
-            <Button
-              onClick={() => setShowGuide(false)}
-              className="absolute top-4 right-4 z-10 bg-red-500 hover:bg-red-600"
-              size="sm"
-            >
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-6">
+          <div className="relative w-full max-w-5xl max-h-[85vh]">
+            <button onClick={() => setShowGuide(false)} className="absolute -top-2 -right-2 z-10 w-8 h-8 rounded-full bg-sv-surface-2 border border-white/10 flex items-center justify-center hover:bg-sv-surface-3 transition-colors">
               <X className="w-4 h-4" />
-            </Button>
+            </button>
             <CodingGuide />
           </div>
         </div>
       )}
 
-      {/* Enhanced Header */}
-      <div className="bg-black/20 backdrop-blur-md border-b border-purple-500/20 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              SynthVis Pro
-            </h1>
-            <div className="flex items-center gap-2 text-sm text-gray-400">
-              <RefreshCw className="w-4 h-4" />
-              <span>Advanced Audiovisual Coding</span>
-            </div>
+      {/* Header */}
+      <header className="h-12 flex items-center justify-between px-4 border-b border-white/5 bg-sv-surface-1 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-sv-cyan" />
+            <h1 className="text-sm font-bold gradient-text-synthvis">SynthVis Pro</h1>
           </div>
-          
-          {/* Enhanced Transport Controls */}
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setShowGuide(true)}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0"
-              size="sm"
-            >
-              <BookOpen className="w-4 h-4 mr-2" />
-              Guide
-            </Button>
-            
-            <Button
-              onClick={handlePlay}
-              className={`w-12 h-12 rounded-full ${
-                syncState.isPlaying 
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600' 
-                  : 'bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-600 hover:to-cyan-600'
-              } border-0 shadow-lg shadow-purple-500/25 transition-all duration-200`}
-            >
-              {syncState.isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-            </Button>
-            
-            <Button
-              onClick={handleStop}
-              className="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 border-0 transition-all duration-200"
-            >
-              <Square className="w-4 h-4" />
-            </Button>
-            
-            <div className="flex items-center gap-2 ml-4 bg-black/30 rounded-lg px-3 py-2">
-              <Volume2 className="w-4 h-4" />
-              <Slider
-                value={[syncState.audioParams.volume]}
-                onValueChange={handleVolumeChange}
-                max={100}
-                step={1}
-                className="w-20"
-              />
-              <span className="text-xs text-gray-400 w-8">{syncState.audioParams.volume}%</span>
-            </div>
-
-            {/* Enhanced Sync Status */}
-            <div className="flex items-center gap-2 bg-black/30 rounded-lg px-3 py-2">
-              <div className={`w-2 h-2 rounded-full ${syncState.audioData.beat ? 'bg-green-400' : 'bg-gray-600'} transition-all duration-100`} />
-              <span className="text-xs text-gray-400">
-                {syncState.audioParams.tempo} BPM | {syncState.audioParams.key}
-              </span>
-            </div>
-          </div>
+          <div className="h-4 w-px bg-white/10" />
+          <span className="text-[10px] text-muted-foreground tracking-wider uppercase">Audiovisual Engine</span>
         </div>
 
-        {/* Enhanced Sync Parameters Bar */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-purple-500/20">
-          <div className="flex items-center gap-6 text-xs text-gray-400">
-            <div>Particles: {syncState.visualParams.particleCount}</div>
-            <div>Intensity: {Math.round(syncState.visualParams.intensity * 100)}%</div>
-            <div>Style: {syncState.visualParams.backgroundStyle}</div>
+        {/* Transport */}
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowGuide(true)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-sv-surface-2 border border-white/5 hover:border-sv-green/30 hover:text-sv-green transition-all">
+            <BookOpen className="w-3 h-3" />
+            Guide
+          </button>
+
+          <div className="h-4 w-px bg-white/10" />
+
+          <button onClick={handlePlay} className={`sv-transport-btn w-9 h-9 ${syncState.isPlaying ? 'bg-sv-pink shadow-[0_0_16px_hsl(330_85%_60%/0.4)]' : 'bg-sv-green shadow-[0_0_16px_hsl(150_80%_50%/0.3)]'}`}>
+            {syncState.isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
+          </button>
+
+          <button onClick={handleStop} className="sv-transport-btn w-7 h-7 bg-sv-surface-3 border border-white/10 hover:border-destructive/50 hover:bg-destructive/20">
+            <Square className="w-3 h-3" />
+          </button>
+
+          <div className="h-4 w-px bg-white/10" />
+
+          <div className="flex items-center gap-1.5 bg-sv-surface-2 rounded-md px-2 py-1 border border-white/5">
+            <Volume2 className="w-3 h-3 text-muted-foreground" />
+            <Slider value={[syncState.audioParams.volume]} onValueChange={(v) => updateAudioParams({ volume: v[0] })} max={100} step={1} className="w-16" />
+            <span className="text-[10px] text-muted-foreground w-6 text-right">{syncState.audioParams.volume}</span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-gray-400">
-            <span>Audio Analysis:</span>
-            <span>Amp: {(syncState.audioData.amplitude * 100).toFixed(1)}%</span>
-            <span>Freq: {syncState.audioData.frequency.toFixed(0)}Hz</span>
-            <span>Phase: {(syncState.audioData.phase * 100).toFixed(0)}%</span>
+
+          <div className="flex items-center gap-2 bg-sv-surface-2 rounded-md px-2 py-1 border border-white/5">
+            <div className={`sv-status-dot ${syncState.isPlaying ? 'sv-status-dot--active' : 'sv-status-dot--inactive'}`} />
+            <span className="text-[10px] text-muted-foreground font-mono">{syncState.audioParams.tempo} BPM</span>
+            <span className="text-[10px] text-sv-cyan font-mono">{syncState.audioParams.key}</span>
           </div>
+        </div>
+      </header>
+
+      {/* Metrics bar */}
+      <div className="h-7 flex items-center justify-between px-4 border-b border-white/5 bg-sv-surface-0 flex-shrink-0">
+        <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+          <span className="flex items-center gap-1"><Activity className="w-3 h-3 text-sv-orange" />Amp: {(syncState.audioData.amplitude * 100).toFixed(0)}%</span>
+          <span className="flex items-center gap-1"><Waves className="w-3 h-3 text-sv-cyan" />Freq: {syncState.audioData.frequency.toFixed(0)}Hz</span>
+          <span>Phase: {(syncState.audioData.phase * 100).toFixed(0)}%</span>
+          <span className={syncState.audioData.beat ? 'text-sv-pink' : ''}>Beat: {syncState.audioData.beat ? '●' : '○'}</span>
+        </div>
+        <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+          <span>Particles: {syncState.visualParams.particleCount}</span>
+          <span>Intensity: {Math.round(syncState.visualParams.intensity * 100)}%</span>
+          <span className={syncState.isPlaying ? 'text-sv-green' : ''}>{syncState.isPlaying ? '● SYNCED' : '○ IDLE'}</span>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex h-[calc(100vh-140px)]">
-        {/* Left Panel - Audio Code */}
-        <div className="w-1/2 flex flex-col border-r border-purple-500/20">
-          <div className="bg-black/30 backdrop-blur-sm p-3 border-b border-purple-500/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Volume2 className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm font-medium text-cyan-400">Advanced Audio Code</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-xs text-gray-400">
-                  Functions: {(audioCode.match(/\b(play|with_synth|with_fx|modulate)\b/g) || []).length}
+      {/* Main workspace */}
+      <div className="flex-1 min-h-0">
+        <ResizablePanelGroup direction="horizontal">
+          {/* Audio Panel */}
+          <ResizablePanel defaultSize={35} minSize={25}>
+            <div className="h-full flex flex-col">
+              <div className="sv-panel-header">
+                <div className="flex items-center gap-1.5">
+                  <Volume2 className="w-3.5 h-3.5 text-sv-cyan" />
+                  <span className="text-[11px] font-semibold text-sv-cyan">Audio</span>
+                  <span className="sv-badge">{audioFnCount} fn</span>
                 </div>
+                <Code2 className="w-3 h-3 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-h-0">
+                <CodeEditor value={audioCode} onChange={setAudioCode} language="ruby" className="h-full" />
+              </div>
+              <div className="h-20 border-t border-white/5 relative flex-shrink-0">
+                <WaveformVisualizer isPlaying={syncState.isPlaying} audioData={syncState.audioData} />
               </div>
             </div>
-          </div>
-          
-          <div className="flex-1 flex flex-col">
-            <CodeEditor 
-              value={audioCode}
-              onChange={setAudioCode}
-              language="ruby"
-              className="flex-1"
-            />
-            
-            <div className="h-24 bg-black/40 border-t border-purple-500/20 relative">
-              <WaveformVisualizer 
-                isPlaying={syncState.isPlaying} 
-                audioData={syncState.audioData}
-              />
-              <div className="absolute top-2 right-2 text-xs text-gray-400">
-                Real-time Spectrum Analysis
-              </div>
-            </div>
-          </div>
-        </div>
+          </ResizablePanel>
 
-        {/* Right Panel - Visual Code & Preview */}
-        <div className="w-1/2 flex flex-col">
-          <div className="bg-black/30 backdrop-blur-sm p-3 border-b border-purple-500/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-medium text-purple-400">Advanced Visual Code</span>
+          <ResizableHandle withHandle />
+
+          {/* Visual Panel */}
+          <ResizablePanel defaultSize={35} minSize={25}>
+            <div className="h-full flex flex-col">
+              <div className="sv-panel-header">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-sv-purple" />
+                  <span className="text-[11px] font-semibold text-sv-purple">Visual</span>
+                  <span className="sv-badge">{visualObjCount} obj</span>
+                </div>
+                <Code2 className="w-3 h-3 text-muted-foreground" />
               </div>
-              <div className="flex items-center gap-2">
-                <div className="text-xs text-gray-400">
-                  Objects: {(visualCode.match(/\b(circle|rect|polygon|particles|spectrum)\b/g) || []).length}
+              <div className="flex-1 min-h-0">
+                <CodeEditor value={visualCode} onChange={setVisualCode} language="javascript" className="h-full" />
+              </div>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          {/* Preview Panel */}
+          <ResizablePanel defaultSize={30} minSize={20}>
+            <div className="h-full flex flex-col">
+              <div className="sv-panel-header">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-sv-pink" />
+                  <span className="text-[11px] font-semibold text-sv-pink">Preview</span>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
+                  <span>{syncState.currentTime.toFixed(1)}s</span>
+                  <span>60fps</span>
+                  <span className={syncState.isPlaying ? 'text-sv-green sv-glow-text' : 'text-muted-foreground'}>
+                    {syncState.isPlaying ? '● LIVE' : '● OFF'}
+                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="flex-1 flex flex-col">
-            <div className="h-1/2 border-b border-purple-500/20">
-              <CodeEditor 
-                value={visualCode}
-                onChange={setVisualCode}
-                language="javascript"
-                className="h-full"
-              />
-            </div>
-            
-            <div className="h-1/2 bg-black/40 relative overflow-hidden">
-              <ShaderCanvas 
-                code={visualCode}
-                isPlaying={syncState.isPlaying}
-                time={syncState.currentTime}
-                audioData={syncState.audioData}
-                visualParams={syncState.visualParams}
-              />
-              
-              <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm rounded-lg p-3 space-y-2">
-                <div className="text-xs text-gray-300">
-                  <div>Time: {syncState.currentTime.toFixed(1)}s</div>
-                  <div>FPS: 60</div>
-                  <div className={`${syncState.isPlaying ? 'text-green-400' : 'text-red-400'}`}>
-                    {syncState.isPlaying ? '● LIVE' : '● STOPPED'}
-                  </div>
-                  <div className="text-yellow-400">
-                    Audio: {syncState.audioData.amplitude > 0.01 ? '🔊' : '🔇'}
-                  </div>
-                  <div className="text-purple-400">
-                    Sync: {Math.round((syncState.audioData.amplitude + syncState.visualParams.intensity) * 50)}%
-                  </div>
-                </div>
+              <div className="flex-1 min-h-0 relative bg-black">
+                <ShaderCanvas code={visualCode} isPlaying={syncState.isPlaying} time={syncState.currentTime} audioData={syncState.audioData} visualParams={syncState.visualParams} />
               </div>
             </div>
-          </div>
-        </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
 
-      {/* Enhanced Status Bar */}
-      <div className="bg-black/40 backdrop-blur-md border-t border-purple-500/20 p-2">
-        <div className="flex items-center justify-between text-xs text-gray-400">
-          <div>SynthVis Pro v1.0 - Advanced Synchronized Live Audiovisual Coding</div>
-          <div className="flex items-center gap-4">
-            <span>Audio: Web Audio API | Complex Synthesis</span>
-            <span>Visual: Canvas2D | Advanced Effects</span>
-            <span className={syncState.isPlaying ? 'text-green-400' : 'text-gray-400'}>
-              {syncState.isPlaying ? 'RUNNING & FULLY SYNCED' : 'IDLE'}
-            </span>
-          </div>
+      {/* Status bar */}
+      <div className="h-6 flex items-center justify-between px-4 border-t border-white/5 bg-sv-surface-1 flex-shrink-0">
+        <span className="text-[10px] text-muted-foreground">SynthVis Pro v2.0 — Synchronized Audiovisual Coding</span>
+        <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+          <span>Web Audio API</span>
+          <span>Canvas2D</span>
+          <span className={syncState.isPlaying ? 'text-sv-green' : ''}>{syncState.isPlaying ? 'RUNNING' : 'IDLE'}</span>
         </div>
       </div>
     </div>
