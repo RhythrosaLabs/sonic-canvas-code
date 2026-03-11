@@ -1,294 +1,230 @@
-
 import React, { useState } from 'react';
-import { Book, ChevronDown, ChevronRight, Code, Volume2, Eye, Lightbulb } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { BookOpen, Volume2, Eye, Sparkles, Copy, Check, ChevronRight } from 'lucide-react';
 
-interface GuideSection {
-  id: string;
+type Tab = 'audio' | 'visual' | 'sync';
+
+interface Example {
+  code: string;
+  label: string;
+}
+
+interface Section {
   title: string;
-  icon: React.ReactNode;
-  content: {
-    description: string;
-    examples: { code: string; description: string }[];
-    advanced?: { code: string; description: string }[];
-  };
+  desc: string;
+  examples: Example[];
+  advanced?: Example[];
 }
 
 const CodingGuide = () => {
-  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  const [tab, setTab] = useState<Tab>('audio');
+  const [copied, setCopied] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
-  const toggleSection = (sectionId: string) => {
-    const newOpenSections = new Set(openSections);
-    if (newOpenSections.has(sectionId)) {
-      newOpenSections.delete(sectionId);
-    } else {
-      newOpenSections.add(sectionId);
-    }
-    setOpenSections(newOpenSections);
+  const copy = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopied(code);
+    setTimeout(() => setCopied(null), 1500);
   };
 
-  const audioSections: GuideSection[] = [
+  const toggle = (id: string) => {
+    const s = new Set(expandedSections);
+    s.has(id) ? s.delete(id) : s.add(id);
+    setExpandedSections(s);
+  };
+
+  const audioSections: Section[] = [
     {
-      id: 'audio-basics',
-      title: 'Audio Fundamentals',
-      icon: <Volume2 className="w-4 h-4" />,
-      content: {
-        description: 'Learn the core audio synthesis concepts and basic note playing.',
-        examples: [
-          {
-            code: 'play :C4, amp: 0.8, release: 0.5',
-            description: 'Play a C4 note with 80% amplitude and 0.5s release'
-          },
-          {
-            code: 'sleep 1.0',
-            description: 'Wait for 1 second before next instruction'
-          },
-          {
-            code: 'set_tempo 140',
-            description: 'Change the global tempo to 140 BPM'
-          }
-        ],
-        advanced: [
-          {
-            code: 'with_synth :saw do\n  play chord(:Am, :seventh), sustain: 2\nend',
-            description: 'Use sawtooth wave to play Am7 chord with sustain'
-          }
-        ]
-      }
+      title: 'Fundamentals',
+      desc: 'Basic note playing, tempo, and timing.',
+      examples: [
+        { code: 'play :C4, amp: 0.8, release: 0.5', label: 'Play a note with amplitude and release' },
+        { code: 'sleep 1.0', label: 'Wait 1 second before next instruction' },
+        { code: 'set_tempo 140', label: 'Set global tempo to 140 BPM' },
+        { code: 'set_key :Am', label: 'Set musical key to A minor' },
+      ],
+      advanced: [
+        { code: 'with_synth :saw do\n  play chord(:Am, :seventh), sustain: 2\nend', label: 'Play Am7 chord with saw synth' },
+      ]
     },
     {
-      id: 'audio-synthesis',
-      title: 'Advanced Synthesis',
-      icon: <Code className="w-4 h-4" />,
-      content: {
-        description: 'Master complex synthesis techniques, modulation, and sound design.',
-        examples: [
-          {
-            code: 'synth :fm, carrier: 440, modulator: 220, depth: 0.8',
-            description: 'Create FM synthesis with carrier and modulator frequencies'
-          },
-          {
-            code: 'filter :lpf, cutoff: 800, resonance: 0.7',
-            description: 'Apply low-pass filter with cutoff frequency and resonance'
-          },
-          {
-            code: 'envelope attack: 0.1, decay: 0.3, sustain: 0.6, release: 1.0',
-            description: 'Define ADSR envelope for amplitude shaping'
-          }
-        ],
-        advanced: [
-          {
-            code: 'modulate :cutoff do\n  lfo :sine, rate: 2, depth: 400\nend',
-            description: 'Modulate filter cutoff with sine wave LFO'
-          }
-        ]
-      }
+      title: 'Synthesis',
+      desc: 'FM synthesis, filters, envelopes, and modulation.',
+      examples: [
+        { code: 'synth :fm, carrier: 440, modulator: 220, depth: 0.8', label: 'FM synthesis with carrier/modulator' },
+        { code: 'filter :lpf, cutoff: 800, resonance: 0.7', label: 'Low-pass filter with resonance' },
+        { code: 'envelope attack: 0.1, decay: 0.3, sustain: 0.6, release: 1.0', label: 'ADSR envelope shaping' },
+      ],
+      advanced: [
+        { code: 'modulate :cutoff do\n  lfo :sine, rate: 2, depth: 400\nend', label: 'LFO modulation on filter cutoff' },
+      ]
     },
     {
-      id: 'audio-effects',
-      title: 'Effects & Processing',
-      icon: <Lightbulb className="w-4 h-4" />,
-      content: {
-        description: 'Apply real-time effects and audio processing chains.',
-        examples: [
-          {
-            code: 'with_fx :reverb, room: 0.8, damp: 0.5 do\n  play :C4\nend',
-            description: 'Add reverb effect with room size and damping'
-          },
-          {
-            code: 'with_fx :delay, time: 0.25, feedback: 0.6 do',
-            description: 'Create delay effect with quarter-note timing'
-          },
-          {
-            code: 'compress threshold: -12, ratio: 4, attack: 0.01',
-            description: 'Apply dynamic compression to control dynamics'
-          }
-        ]
-      }
+      title: 'Effects',
+      desc: 'Real-time audio effects and processing chains.',
+      examples: [
+        { code: 'with_fx :reverb, room: 0.8, damp: 0.5 do\n  play :C4\nend', label: 'Reverb with room size control' },
+        { code: 'with_fx :delay, time: 0.25, feedback: 0.6 do', label: 'Tempo-synced delay' },
+        { code: 'compress threshold: -12, ratio: 4, attack: 0.01', label: 'Dynamic compression' },
+      ]
     }
   ];
 
-  const visualSections: GuideSection[] = [
+  const visualSections: Section[] = [
     {
-      id: 'visual-basics',
-      title: 'Visual Fundamentals',
-      icon: <Eye className="w-4 h-4" />,
-      content: {
-        description: 'Start with basic shapes, colors, and transformations.',
-        examples: [
-          {
-            code: 'bg(0.1, 0.05, 0.2, 0.8)',
-            description: 'Set background color with RGB and alpha values'
-          },
-          {
-            code: 'circle().scale(2).color(1, 0.5, 0)',
-            description: 'Create orange circle scaled 2x larger'
-          },
-          {
-            code: 'rect(100, 50).rotate(45).translate(10, 20)',
-            description: 'Create rectangle, rotate 45°, move to position'
-          }
-        ],
-        advanced: [
-          {
-            code: 'shape(8).radius(() => audio.amp * 100 + 50)',
-            description: 'Create octagon with audio-reactive radius'
-          }
-        ]
-      }
+      title: 'Shapes & Colors',
+      desc: 'Draw shapes, set colors, and transform objects.',
+      examples: [
+        { code: 'bg(0.1, 0.05, 0.2, 0.8)', label: 'Set background with RGBA' },
+        { code: 'circle().radius(40).color(1, 0.5, 0)', label: 'Orange circle with radius 40' },
+        { code: 'rect(100, 50).rotate(45).translate(10, 20)', label: 'Rotated, translated rectangle' },
+        { code: 'polygon(sides: 6).radius(60).stroke(width: 2)', label: 'Hexagon outline' },
+      ],
+      advanced: [
+        { code: 'shape(8).radius(() =&gt; audio.amp * 100 + 50)', label: 'Audio-reactive octagon' },
+      ]
     },
     {
-      id: 'visual-animation',
-      title: 'Animation & Motion',
-      icon: <Code className="w-4 h-4" />,
-      content: {
-        description: 'Create dynamic animations synchronized with audio data.',
-        examples: [
-          {
-            code: 'oscillate("x", min: -50, max: 50, speed: 2)',
-            description: 'Oscillate X position between -50 and 50'
-          },
-          {
-            code: 'rotate(() => time * 60)',
-            description: 'Continuous rotation based on time'
-          },
-          {
-            code: 'scale(() => 1 + audio.beat * 0.5)',
-            description: 'Scale up by 50% when beat is detected'
-          }
-        ],
-        advanced: [
-          {
-            code: 'bezier(start: [0,0], cp1: [100,0], cp2: [100,100], end: [0,100])\n  .progress(() => audio.phase)',
-            description: 'Animate along Bezier curve based on audio phase'
-          }
-        ]
-      }
+      title: 'Animation',
+      desc: 'Dynamic motion synchronized with audio data.',
+      examples: [
+        { code: 'rotate(() =&gt; time * 60)', label: 'Continuous time-based rotation' },
+        { code: 'scale(() =&gt; 1 + audio.beat * 0.5)', label: 'Beat-reactive scaling' },
+        { code: 'oscillate("x", min: -50, max: 50, speed: 2)', label: 'Oscillating X position' },
+      ],
+      advanced: [
+        { code: 'bezier(start: [0,0], cp1: [100,0], cp2: [100,100], end: [0,100])\n  .progress(() =&gt; audio.phase)', label: 'Bezier path following audio phase' },
+      ]
     },
     {
-      id: 'visual-effects',
-      title: 'Visual Effects',
-      icon: <Lightbulb className="w-4 h-4" />,
-      content: {
-        description: 'Master advanced visual effects and compositing techniques.',
-        examples: [
-          {
-            code: 'blur(intensity: 5).glow(color: [1,1,1], size: 10)',
-            description: 'Apply blur and white glow effects'
-          },
-          {
-            code: 'blend("multiply").opacity(0.7)',
-            description: 'Set multiply blend mode with 70% opacity'
-          },
-          {
-            code: 'trail(length: 20, fade: 0.95)',
-            description: 'Create motion trail with 20 frames and 95% fade'
-          }
-        ],
-        advanced: [
-          {
-            code: 'shader("fragment") {\n  vec3 color = hsv(audio.freq/1000, 1.0, 1.0);\n  gl_FragColor = vec4(color, 1.0);\n}',
-            description: 'Custom fragment shader with audio-reactive HSV color'
-          }
-        ]
-      }
+      title: 'Effects & Particles',
+      desc: 'Visual effects, blending, trails, and particle systems.',
+      examples: [
+        { code: 'blur(intensity: 5).glow(color: [1,1,1], size: 10)', label: 'Blur + glow combo' },
+        { code: 'blend("multiply").opacity(0.7)', label: 'Multiply blend mode at 70%' },
+        { code: 'trail(length: 20, fade: 0.95)', label: 'Motion trail with fade' },
+        { code: 'particles(count: 50) {\n  spawn_rate(audio.beat ? 5 : 1)\n  shape("circle").life(120)\n}', label: 'Beat-synced particle spawning' },
+      ]
     }
   ];
 
-  const renderSection = (section: GuideSection) => (
-    <Card key={section.id} className="mb-4">
-      <Collapsible>
-        <CollapsibleTrigger asChild>
-          <CardHeader 
-            className="cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => toggleSection(section.id)}
-          >
-            <CardTitle className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                {section.icon}
-                {section.title}
-              </div>
-              {openSections.has(section.id) ? 
-                <ChevronDown className="w-4 h-4" /> : 
-                <ChevronRight className="w-4 h-4" />
-              }
-            </CardTitle>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <CardContent className="pt-0">
-            <p className="text-sm text-gray-600 mb-4">{section.content.description}</p>
-            
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-sm mb-2">Basic Examples:</h4>
-                {section.content.examples.map((example, idx) => (
-                  <div key={idx} className="mb-3 p-3 bg-gray-50 rounded-lg">
-                    <code className="text-xs font-mono text-purple-700 block mb-1">
-                      {example.code}
-                    </code>
-                    <p className="text-xs text-gray-600">{example.description}</p>
-                  </div>
-                ))}
-              </div>
-              
-              {section.content.advanced && (
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Advanced Examples:</h4>
-                  {section.content.advanced.map((example, idx) => (
-                    <div key={idx} className="mb-3 p-3 bg-blue-50 rounded-lg border-l-2 border-blue-300">
-                      <code className="text-xs font-mono text-blue-700 block mb-1 whitespace-pre">
-                        {example.code}
-                      </code>
-                      <p className="text-xs text-gray-600">{example.description}</p>
+  const syncSections: Section[] = [
+    {
+      title: 'Audio Reactive Variables',
+      desc: 'Use these in visual code to react to audio in real-time.',
+      examples: [
+        { code: 'audio.amp', label: 'Current amplitude (0-1) — volume/loudness' },
+        { code: 'audio.freq', label: 'Dominant frequency in Hz' },
+        { code: 'audio.beat', label: 'Boolean — true on beat detection' },
+        { code: 'audio.phase', label: 'Current position in beat cycle (0-1)' },
+        { code: 'time', label: 'Elapsed time in seconds' },
+      ]
+    },
+    {
+      title: 'Sync Patterns',
+      desc: 'Common patterns for connecting audio to visuals.',
+      examples: [
+        { code: 'circle().radius(20 + audio.amp * 80)', label: 'Size reacts to volume' },
+        { code: '.color([audio.freq/1000, 0.8, 1.0])', label: 'Color shifts with pitch' },
+        { code: 'audio.beat ? 5 : 1', label: 'Conditional on beat detection' },
+        { code: 'rotate(audio.phase * 360)', label: 'Rotation follows beat phase' },
+      ]
+    }
+  ];
+
+  const sections = tab === 'audio' ? audioSections : tab === 'visual' ? visualSections : syncSections;
+
+  return (
+    <div className="bg-sv-surface-1 rounded-xl border border-white/10 max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+      {/* Header */}
+      <div className="px-5 pt-5 pb-3 border-b border-white/5">
+        <div className="flex items-center gap-2 mb-3">
+          <BookOpen className="w-5 h-5 text-sv-purple" />
+          <h2 className="text-lg font-bold gradient-text-synthvis">SynthVis Language Guide</h2>
+        </div>
+        
+        {/* Tabs */}
+        <div className="flex gap-1 p-0.5 bg-sv-surface-0 rounded-lg">
+          {[
+            { id: 'audio' as Tab, label: 'Audio', icon: Volume2, color: 'text-sv-cyan' },
+            { id: 'visual' as Tab, label: 'Visual', icon: Eye, color: 'text-sv-purple' },
+            { id: 'sync' as Tab, label: 'Sync', icon: Sparkles, color: 'text-sv-pink' },
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all ${
+                tab === t.id
+                  ? `bg-sv-surface-2 ${t.color} shadow-sm`
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <t.icon className="w-3.5 h-3.5" />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto sv-scrollbar p-5 space-y-4">
+        {sections.map((section, si) => {
+          const id = `${tab}-${si}`;
+          const isOpen = expandedSections.has(id);
+          return (
+            <div key={id} className="rounded-lg border border-white/5 bg-sv-surface-0 overflow-hidden">
+              <button onClick={() => toggle(id)} className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.02] transition-colors">
+                <div className="text-left">
+                  <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{section.desc}</p>
+                </div>
+                <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+              </button>
+
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-2">
+                  {section.examples.map((ex, ei) => (
+                    <div key={ei} className="group flex items-start gap-2 p-2.5 rounded-md bg-sv-surface-1 border border-white/5 hover:border-white/10 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <code className="text-[11px] font-mono text-sv-cyan block whitespace-pre-wrap break-all">{ex.code}</code>
+                        <p className="text-[10px] text-muted-foreground mt-1">{ex.label}</p>
+                      </div>
+                      <button onClick={() => copy(ex.code)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/5">
+                        {copied === ex.code ? <Check className="w-3 h-3 text-sv-green" /> : <Copy className="w-3 h-3 text-muted-foreground" />}
+                      </button>
                     </div>
                   ))}
+
+                  {section.advanced && (
+                    <>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground pt-2 pb-1 font-medium">Advanced</div>
+                      {section.advanced.map((ex, ei) => (
+                        <div key={ei} className="group flex items-start gap-2 p-2.5 rounded-md bg-sv-surface-2 border border-sv-purple/10 hover:border-sv-purple/20 transition-colors">
+                          <div className="flex-1 min-w-0">
+                            <code className="text-[11px] font-mono text-sv-purple block whitespace-pre-wrap break-all">{ex.code}</code>
+                            <p className="text-[10px] text-muted-foreground mt-1">{ex.label}</p>
+                          </div>
+                          <button onClick={() => copy(ex.code)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/5">
+                            {copied === ex.code ? <Check className="w-3 h-3 text-sv-green" /> : <Copy className="w-3 h-3 text-muted-foreground" />}
+                          </button>
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
             </div>
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
-  );
+          );
+        })}
+      </div>
 
-  return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-h-full overflow-y-auto">
-      <div className="flex items-center gap-2 mb-6">
-        <Book className="w-5 h-5 text-purple-600" />
-        <h2 className="text-xl font-bold text-gray-800">SynthVis Language Guide</h2>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <h3 className="text-lg font-semibold mb-4 text-red-600 flex items-center gap-2">
-            <Volume2 className="w-5 h-5" />
-            Audio Programming
-          </h3>
-          {audioSections.map(renderSection)}
-        </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold mb-4 text-blue-600 flex items-center gap-2">
-            <Eye className="w-5 h-5" />
-            Visual Programming
-          </h3>
-          {visualSections.map(renderSection)}
-        </div>
-      </div>
-      
-      <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
-        <h4 className="font-semibold text-sm mb-2 text-purple-700">💡 Pro Tip: Audio-Visual Sync</h4>
-        <p className="text-xs text-gray-700 mb-2">
-          Use <code className="bg-white px-1 rounded">audio.amp</code>, <code className="bg-white px-1 rounded">audio.freq</code>, 
-          and <code className="bg-white px-1 rounded">audio.beat</code> 
-          in your visual code to create reactive animations.
+      {/* Footer tip */}
+      <div className="px-5 py-3 border-t border-white/5 bg-sv-surface-0">
+        <p className="text-[10px] text-muted-foreground">
+          <span className="text-sv-yellow">💡 Tip:</span> Use{' '}
+          <code className="text-sv-cyan bg-sv-surface-2 px-1 py-0.5 rounded text-[10px]">audio.amp</code>,{' '}
+          <code className="text-sv-cyan bg-sv-surface-2 px-1 py-0.5 rounded text-[10px]">audio.beat</code>,{' '}
+          <code className="text-sv-cyan bg-sv-surface-2 px-1 py-0.5 rounded text-[10px]">audio.freq</code> in visual code for reactive animations.
         </p>
-        <code className="text-xs font-mono text-purple-700 block">
-          circle().scale(() =&gt; audio.amp * 3 + 0.5).color(() =&gt; audio.freq/1000, 0.8, 1)
-        </code>
       </div>
     </div>
   );
