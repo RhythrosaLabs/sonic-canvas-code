@@ -152,7 +152,7 @@ particles(count: 50) {
   }, [visualCode, updateVisualParams, updateAudioParams, syncState.audioParams.tempo]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (syncState.isPlaying) {
       interval = setInterval(() => updateTime(syncState.currentTime + 0.1), 100);
     }
