@@ -1,78 +1,61 @@
-# Welcome to your Lovable project
+<div align="center">
 
-## Project info
+# 🎵 Sonic Canvas Code
 
-**URL**: https://lovable.dev/projects/6a105daf-3fbd-4c8f-8f6d-aa5813a0802a
+**Algorithmic audiovisual art canvas — live code music and visuals in the browser**
 
-## How can I edit this code?
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=white)
+![Web Audio API](https://img.shields.io/badge/Web_Audio_API-red?style=flat)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
 
-There are several ways of editing your application.
+🎨 **[Live Project](https://lovable.dev/projects/6a105daf-3fbd-4c8f-8f6d-aa5813a0802a)**
 
-**Use Lovable**
+</div>
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6a105daf-3fbd-4c8f-8f6d-aa5813a0802a) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+Sonic Canvas Code is an algorithmic audiovisual art canvas that lets you live-code music and visuals directly in the browser. Write code to generate sound, shapes, and animations in real time — where music and visuals evolve together.
 
-**Use your preferred IDE**
+## ✨ Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Live-coding canvas** — write algorithms that drive both audio and visuals simultaneously
+- **Web Audio API** — real-time sound synthesis directly in the browser
+- **HTML5 Canvas** — 2D visual generation synced to music
+- **React UI** — clean, editor-focused interface
+- **Zero backend** — everything runs client-side
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Quick Start
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+git clone https://github.com/RhythrosaLabs/sonic-canvas-code.git
+cd sonic-canvas-code
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Or open the [Lovable project](https://lovable.dev/projects/6a105daf-3fbd-4c8f-8f6d-aa5813a0802a) to edit directly in the browser.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🛠️ Tech Stack
 
-**Use GitHub Codespaces**
+- **React + TypeScript** — UI framework
+- **Web Audio API** — sound synthesis
+- **HTML5 Canvas** — visual rendering
+- **Vite** — build tool
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🤝 Contributing
 
-## What technologies are used for this project?
+PRs welcome. Open an issue first for major changes.
 
-This project is built with:
+## 📄 License
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+MIT
 
-## How can I deploy this project?
+## 💛 Support
 
-Simply open [Lovable](https://lovable.dev/projects/6a105daf-3fbd-4c8f-8f6d-aa5813a0802a) and click on Share -> Publish.
+If this sparks creative ideas, consider supporting development:
 
-## Can I connect a custom domain to my Lovable project?
+👉 [Donate via PayPal](https://paypal.me/noodlebake) — @noodlebake
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-
-
-## Support
-
-If you find this useful, consider supporting via [PayPal](https://paypal.me/noodlebake)
+---
+<div align="center">Made with ❤️ by <a href="https://github.com/RhythrosaLabs">RhythrosaLabs</a></div>
